@@ -28,7 +28,7 @@ export default function Sidebar({ activeModule, onModuleChange }: SidebarProps) 
     <div className="bg-white h-screen w-64 fixed left-0 top-0 shadow-lg">
       <div className="p-4 border-b flex items-center gap-2">
         <Citrus className="w-8 h-8 text-yellow-400" />
-        <h1 className="text-xl font-bold text-gray-800">Proyecto Laura</h1>
+        <h1 className="text-xl font-bold text-gray-800">Proyecto Diana</h1>
       </div>
       <nav className="p-4">
         {modules.map((module) => {
