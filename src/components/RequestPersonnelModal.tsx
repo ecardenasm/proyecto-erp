@@ -1,36 +1,54 @@
 import React, { useState } from 'react';
-import { X, Plus, Minus } from 'lucide-react';
+import { X, Plus, Minus, AlertCircle } from 'lucide-react';
 
 interface Position {
   role: string;
   quantity: number;
 }
 
-export default function RequestPersonnelModal({
-  isOpen,
-  onClose,
-}: {
+interface RequestPersonnelModalProps {
   isOpen: boolean;
   onClose: () => void;
-}) {
+}
+
+export default function RequestPersonnelModal({ isOpen, onClose }: RequestPersonnelModalProps) {
   const [positions, setPositions] = useState<Position[]>([
     { role: '', quantity: 1 }
   ]);
+  const [error, setError] = useState<string>('');
 
   if (!isOpen) return null;
 
   const addPosition = () => {
     setPositions([...positions, { role: '', quantity: 1 }]);
+    setError('');
   };
 
   const removePosition = (index: number) => {
     setPositions(positions.filter((_, i) => i !== index));
+    setError('');
   };
 
   const updatePosition = (index: number, field: keyof Position, value: string | number) => {
     const newPositions = [...positions];
-    newPositions[index] = { ...newPositions[index], [field]: value };
+    newPositions[index] = { 
+      ...newPositions[index], 
+      [field]: field === 'quantity' ? Math.max(1, Number(value)) : value 
+    };
     setPositions(newPositions);
+    setError('');
+  };
+
+  const handleSubmit = () => {
+    const emptyRole = positions.some(p => !p.role.trim());
+
+    if (emptyRole) {
+      setError('Todos los puestos deben tener un rol especificado');
+      return;
+    }
+
+    alert('Solicitud enviada a Recursos Humanos');
+    onClose();
   };
 
   return (
@@ -42,6 +60,13 @@ export default function RequestPersonnelModal({
             <X className="w-5 h-5" />
           </button>
         </div>
+
+        {error && (
+          <div className="mb-4 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-center gap-2">
+            <AlertCircle className="w-5 h-5" />
+            <span>{error}</span>
+          </div>
+        )}
 
         <div className="space-y-4">
           {positions.map((position, index) => (
@@ -62,7 +87,7 @@ export default function RequestPersonnelModal({
                   type="number"
                   min="1"
                   value={position.quantity}
-                  onChange={(e) => updatePosition(index, 'quantity', parseInt(e.target.value))}
+                  onChange={(e) => updatePosition(index, 'quantity', e.target.value)}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500"
                 />
               </div>
@@ -93,10 +118,7 @@ export default function RequestPersonnelModal({
               Cancelar
             </button>
             <button
-              onClick={() => {
-                alert('Solicitud enviada a Recursos Humanos');
-                onClose();
-              }}
+              onClick={handleSubmit}
               className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
             >
               Enviar Solicitud
